@@ -45,6 +45,20 @@
                                 @enderror
                             </div>
                             <div class="form-group">
+                                <label>Unit</label>
+                                <select name="category_id" class="form-control">
+                                    <option value="">Select Unit</option>
+                                    @foreach($unit as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('unit_id')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
                                 <label>Photo Product</label>
                                 <input type="file" class="form-control @error('image') is-invalid @enderror" name="image">
                                 @error('image')

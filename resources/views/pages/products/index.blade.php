@@ -53,7 +53,6 @@
                                             <th>Created At</th>
                                             <th>Action</th>
                                         </tr>
-                                        
                                         @php
                                             $startNumber = ($products->currentPage() - 1) * $products->perPage() + 1;
                                         @endphp
@@ -68,7 +67,7 @@
                                                 <td>{{ $product->order->total_products ?? 'N/A' }}</td>
                                                 <td>{{ $product->stock }}</td>
                                                 <td>{{ $product->category->name }}</td>
-                                                <td>{{ $product->order->unit->name ?? 'N/A' }}</td>
+                                                <td>{{ $product->unit->name}}</td>
                                                 <td>
                                                     @if ($product->image)
                                                         <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">

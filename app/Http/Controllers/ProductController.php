@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Unit;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,7 +14,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         Cache::flush();
-        $products = Product::with('category')
+        $products = Product::with('category', 'unit')
             ->when($request->input('name'), function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
             })
@@ -26,7 +27,8 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all(); // Memperbaiki nama variabel agar sesuai dengan pemanggilannya di view
-        return view('pages.products.create', compact('categories')); // Memperbaiki pemanggilan variabel di view
+        $unit = Unit::all();
+        return view('pages.products.create', compact('categories', 'unit')); // Memperbaiki pemanggilan variabel di view
     }
 
     public function store(Request $request)
@@ -34,6 +36,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|min:3|unique:products',
             'category_id' => 'required|exists:category,id', // Memperbaiki pengecekan validasi untuk kategori
+            'unit_id' => 'required|exists:units,id',
             'image' => 'required|image|mimes:png,jpg,jpeg|max:2048', // Menambahkan max size untuk gambar (dalam kilobit)
         ]);
 
@@ -43,6 +46,7 @@ class ProductController extends Controller
         $product = new Product();
         $product->name = $request->name;
         $product->category_id = $request->category_id;
+        $product->unit_id = $request->unit_id;
         $product->product_code = $productCode;
         $product->image = $request->file('image')->store('public/products');
         $product->save();
@@ -57,7 +61,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $categories = Category::all(); // Memperbaiki nama variabel agar sesuai dengan pemanggilannya di view
-        return view('pages.products.edit', compact('product', 'categories')); // Memperbaiki pemanggilan variabel di view
+        $unit = Unit::all();
+        return view('pages.products.edit', compact('product', 'categories', 'unit')); // Memperbaiki pemanggilan variabel di view
     }
 
     public function update(Request $request, $id)
@@ -65,12 +70,14 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|min:3|unique:products,name,' . $id,
             'category_id' => 'required|exists:categories,id', // Memperbaiki pengecekan validasi untuk kategori
+            'unit_id' => 'required|exists:units,id',
             'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048', // Menambahkan max size untuk gambar (dalam kilobit)
         ]);
 
         $product = Product::findOrFail($id);
         $product->name = $request->name;
         $product->category_id = $request->category_id;
+        $product->unit_id = $request->unit_id;
 
         if ($request->hasFile('image')) {
             // Hapus gambar lama sebelum menyimpan yang baru

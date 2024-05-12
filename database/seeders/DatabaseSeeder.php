@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         \App\Models\Unit::create([
+            "id" => 1,
             "name" => "PCS",
             "parent_id" => null,
             "quantity" => 1

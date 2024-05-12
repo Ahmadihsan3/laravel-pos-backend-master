@@ -20,6 +20,7 @@ class Product extends Model
         'name',
         'product_code',
         'category_id',
+        'unit_id',
         'image',
         'stock'
         // Hilangkan 'purchase_id' dari sini, karena Anda ingin membiarkannya kosong saat membuat produk baru
