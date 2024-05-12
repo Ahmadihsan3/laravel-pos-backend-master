@@ -18,7 +18,7 @@
                 @csrf
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input id="email" type="email"
+                    <input id="email" value="ihsan@admin.com" type="email"
                         class="form-control @error('email')
                         is-invalid
                     @enderror"
@@ -36,7 +36,7 @@
                         <label for="password" class="control-label">Password</label>
 
                     </div>
-                    <input id="password" type="password"
+                    <input id="password" type="password" value="12345678"
                         class="form-control @error('password')
                         is-invalid
                     @enderror"

@@ -76,15 +76,19 @@
                                                     <td>{{ $purchase->payment }}</td>
                                                     <td>
                                                         <div class="btn-group" role="group">
-                                                            @if (!$purchase->selected) <!-- Tampilkan tombol hanya jika pembelian belum dipilih -->
-                                                            <a href='{{ route('purchase.accept', $purchase->id) }}' class="btn btn-success">
-                                                                <i class="fas fa-check"></i> Accept
-                                                            </a>
-                                                                <a href='{{ route('purchase.cancel', $purchase->id) }}' class="btn btn-warning">
+                                                            @if (!$purchase->selected)
+                                                                <!-- Tampilkan tombol hanya jika pembelian belum dipilih -->
+                                                                <a href='/purchase/action/accept/{{ $purchase->id }}'
+                                                                    class="btn btn-success">
+                                                                    <i class="fas fa-check"></i> Accept
+                                                                </a>
+                                                                <a href='/purchase/action/cancel/{{ $purchase->id }}'
+                                                                    class="btn btn-warning">
                                                                     <i class="fas fa-times"></i> Cancel
                                                                 </a>
                                                             @endif
-                                                            <a href='{{ route('purchase.export.excel', $purchase->id) }}' class="btn btn-info">
+                                                            <a href='{{ route('purchase.export.excel', $purchase->id) }}'
+                                                                class="btn btn-info">
                                                                 <i class="fas fa-file-excel"></i> Export Excel
                                                             </a>
                                                         </div>

@@ -15,8 +15,12 @@ class PurchaseController extends Controller
 {
     public function index()
     {
-        $purchases = Purchase::paginate(10);
-
+        $selected = request()->query("selected");
+        if ($selected !== null) {
+            $purchases = Purchase::where("selected", $selected)->paginate(10);
+        } else {
+            $purchases = Purchase::paginate(10);
+        }
         return view('pages.purchases.index', compact('purchases'));
     }
 
@@ -65,27 +69,36 @@ class PurchaseController extends Controller
     }
 
     // Contoh dalam PurchaseController
-    public function accept($id)
+    public function accept(Request $request, $id)
     {
         $purchase = Purchase::findOrFail($id);
         if (!$purchase->selected_cancel) { // Memastikan pembelian belum dipilih untuk cancel
-            $purchase->selected = true;
+            $purchase->selected = 1;
             $purchase->save();
+
+            $product = Product::where("id", $purchase->product_id)->first();
+            $product->increment('stock', $purchase->quantity);
+            $product->save();
+
             // Redirect ke halaman detail pembelian atau ke halaman lain
+            return redirect("/purchase");
         } else {
             // Redirect ke halaman lain atau tampilkan pesan kesalahan
+            return redirect("/purchase");
         }
     }
 
-    public function cancel($id)
+    public function cancel(Request $request, $id)
     {
         $purchase = Purchase::findOrFail($id);
         if (!$purchase->selected) { // Memastikan pembelian belum dipilih untuk accept
-            $purchase->selected_cancel = true;
+            $purchase->selected = 2;
             $purchase->save();
             // Redirect ke halaman detail pembelian atau ke halaman lain
+            return redirect("/purchase");
         } else {
             // Redirect ke halaman lain atau tampilkan pesan kesalahan
+            return redirect("/purchase");
         }
     }
 
@@ -94,4 +107,8 @@ class PurchaseController extends Controller
         return Excel::download(new PurchasesExport, 'purchases.xlsx');
     }
 
+    public function show(Request $request, $id)
+    {
+        return "OKS";
+    }
 }

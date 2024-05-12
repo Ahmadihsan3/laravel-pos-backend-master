@@ -49,10 +49,10 @@
             <a class="nav-link" href="{{ route('purchase.index') }}">All Purchase</a>
         </li>
         <li>
-            <a class="nav-link" href="{{ route('purchase.accept') }}">Success Purchase</a>
+            <a class="nav-link" href="purchase?selected=1">Success Purchase</a>
         </li>
         <li>
-            <a class="nav-link" href="{{ route('purchase.cancel') }}">Cancel Purchase</a>
+            <a class="nav-link" href="purchase?selected=2">Cancel Purchase</a>
         </li>
     </ul>
 </li>

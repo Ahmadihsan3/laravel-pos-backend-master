@@ -19,6 +19,7 @@ class CreateProductsTable extends Migration
             $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('cascade'); // Buang default(NULL) dan tetapkan nullable
             $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('cascade');
             $table->string('image')->nullable();
+            $table->integer('stock')->default(0);
             $table->timestamps();
         });
 

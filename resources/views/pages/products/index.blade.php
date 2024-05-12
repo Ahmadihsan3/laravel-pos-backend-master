@@ -53,6 +53,7 @@
                                             <th>Created At</th>
                                             <th>Action</th>
                                         </tr>
+                                        
                                         @php
                                             $startNumber = ($products->currentPage() - 1) * $products->perPage() + 1;
                                         @endphp
@@ -65,7 +66,7 @@
                                                 </td>
                                                 <td>{{ $product->purchase->total ?? 'N/A' }}</td>
                                                 <td>{{ $product->order->total_products ?? 'N/A' }}</td>
-                                                <td>{{ $product->order->quantity ?? 'N/A' }}</td>
+                                                <td>{{ $product->stock }}</td>
                                                 <td>{{ $product->category->name }}</td>
                                                 <td>{{ $product->order->unit->name ?? 'N/A' }}</td>
                                                 <td>

@@ -28,8 +28,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('category', \App\Http\Controllers\CategoryController::class);
     Route::resource('customer', \App\Http\Controllers\CustomerController::class);
     Route::resource('purchase', \App\Http\Controllers\PurchaseController::class);
-    Route::get('purchase/accept', 'PurchaseController@accept')->name('purchase.accept');
-    Route::get('purchase/cancel', 'PurchaseController@cancel')->name('purchase.cancel');
+    Route::get('purchase/action/accept/{id}', [\App\Http\Controllers\PurchaseController::class, 'accept'])->name('purchase.accept');
+    Route::get('purchase/action/cancel/{id}', [\App\Http\Controllers\PurchaseController::class, 'cancel'])->name('purchase.cancel');
     Route::get('/purchases/export', [PurchaseController::class, 'exportToExcel'])->name('purchase.export.excel');
     Route::resource('supplier', \App\Http\Controllers\SupplierController::class);
     Route::resource('unit', \App\Http\Controllers\UnitController::class);
