@@ -46,9 +46,9 @@
                             </div>
                             <div class="form-group">
                                 <label>Unit</label>
-                                <select name="category_id" class="form-control">
+                                <select name="unit_id" class="form-control">
                                     <option value="">Select Unit</option>
-                                    @foreach($unit as $unit)
+                                    @foreach($units as $unit)
                                         <option value="{{ $unit->id }}">{{ $unit->name }}</option>
                                     @endforeach
                                 </select>

@@ -10,6 +10,7 @@ use App\Models\Unit;
 use Carbon\Carbon;
 use App\Exports\PurchasesExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
 
 class PurchaseController extends Controller
 {
@@ -76,9 +77,13 @@ class PurchaseController extends Controller
             $purchase->selected = 1;
             $purchase->save();
 
-            $product = Product::where("id", $purchase->product_id)->first();
-            $product->increment('stock', $purchase->quantity);
-            $product->save();
+            $products = Product::where("id", $purchase->product_id)->get(); // Ambil objek Product
+            foreach ($products as $product) {
+                $product->increment('stock', $purchase->quantity); // Menambah stok produk
+                $product->save();
+            }
+
+            Cache::flush();
 
             // Redirect ke halaman detail pembelian atau ke halaman lain
             return redirect("/purchase");
@@ -87,6 +92,7 @@ class PurchaseController extends Controller
             return redirect("/purchase");
         }
     }
+
 
     public function cancel(Request $request, $id)
     {

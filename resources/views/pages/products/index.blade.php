@@ -44,8 +44,6 @@
                                             <th>Nomor</th>
                                             <th>Name</th>
                                             <th>Barcode</th>
-                                            <th>Price Purchase</th>
-                                            <th>Price Order</th>
                                             <th>Stock</th>
                                             <th>Category</th>
                                             <th>Unit</th>
@@ -53,6 +51,9 @@
                                             <th>Created At</th>
                                             <th>Action</th>
                                         </tr>
+                                        {{-- <?php
+                                        dd($products);
+                                        ?> --}}
                                         @php
                                             $startNumber = ($products->currentPage() - 1) * $products->perPage() + 1;
                                         @endphp
@@ -63,11 +64,9 @@
                                                 <td>{!! DNS1D::getBarcodeHTML("$product->product_code", 'UPCA',2,50) !!}
                                                     <center>p - {{ $product->product_code }}</center>
                                                 </td>
-                                                <td>{{ $product->purchase->total ?? 'N/A' }}</td>
-                                                <td>{{ $product->order->total_products ?? 'N/A' }}</td>
                                                 <td>{{ $product->stock }}</td>
-                                                <td>{{ $product->category->name }}</td>
-                                                <td>{{ $product->unit->name}}</td>
+                                                <td>{{ $product->category ? $product->category->name : '-' }}</td>
+                                                <td>{{ $product->unit ? $product->unit->name : '-' }}</td>
                                                 <td>
                                                     @if ($product->image)
                                                         <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">

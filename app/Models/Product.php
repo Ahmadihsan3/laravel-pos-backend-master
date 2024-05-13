@@ -48,37 +48,4 @@ class Product extends Model
         return $this->hasMany(Purchase::class);
     }
 
-    public function getPricePurchaseAttribute()
-    {
-        // Mengambil harga dari pembelian terakhir jika ada
-        $latestPurchase = $this->purchases()->latest()->first();
-        return $latestPurchase ? $latestPurchase->price : null;
-    }
-
-    public function getPriceOrdersAttribute()
-    {
-        // Mengambil harga dari pesanan terakhir jika ada
-        $latestOrder = $this->orders()->latest()->first();
-        return $latestOrder ? $latestOrder->price : null;
-    }
-
-    public function getNameUnitsAttribute()
-    {
-        // Mengambil nama unit dari pesanan terakhir jika ada
-        $latestOrder = $this->orders()->latest()->first();
-        return $latestOrder ? $latestOrder->unit->name : null;
-    }
-
-    public function getStockAttribute()
-    {
-        // Mengambil total stok dari semua pesanan
-        return $this->orders()->sum('quantity');
-    }
-
-    public function getTotalStockAttribute()
-    {
-        // Mengambil total stok dari semua pesanan dan dikalikan dengan kuantitas unit
-        $latestOrder = $this->orders()->latest()->first();
-        return $latestOrder ? $latestOrder->quantity * $latestOrder->unit->quantity : null;
-    }
 }
