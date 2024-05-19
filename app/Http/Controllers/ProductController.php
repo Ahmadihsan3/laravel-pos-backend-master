@@ -14,7 +14,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         Cache::flush();
-        $products = Product::with('category', 'unit', 'purchases')
+        $products = Product::with('category', 'unit', 'purchaseDetails')
             ->when($request->input('name'), function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
             })

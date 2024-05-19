@@ -9,6 +9,7 @@ use App\Models\Supplier;
 use App\Models\Unit;
 use Carbon\Carbon;
 use App\Exports\PurchasesExport;
+use App\Models\PurchaseDetail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 
@@ -37,14 +38,20 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'price' => 'required|integer|min:0',
-            'payment' => 'required|in:cash,transfer',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'unit_id' => 'required|exists:units,id',
-        ]);
+        $products = json_decode($request->input('products'));
+
+        $total_price = 0;
+        foreach($products as $product ) {
+            $total_price += $product->total;
+        }
+        // $request->validate([
+        //     'product_id' => 'required|exists:products,id',
+        //     'quantity' => 'required|integer|min:1',
+        //     'price' => 'required|integer|min:0',
+        //     'payment' => 'required|in:cash,transfer',
+        //     'supplier_id' => 'required|exists:suppliers,id',
+        //     'unit_id' => 'required|exists:units,id',
+        // ]);
 
         // Generate purchase number
         $lastPurchase = Purchase::latest()->first();
@@ -52,19 +59,25 @@ class PurchaseController extends Controller
         $lastNumber = $lastPurchase ? (int)substr($lastPurchase->no_purchase, -5) : 0;
         $no_purchase = Carbon::now()->format('dmY') . '-' . str_pad(($lastNumber + 1), 5, '0', STR_PAD_LEFT);
 
-        // Calculate total quantity
-        $total_quantity = $request->quantity * Unit::find($request->unit_id)->quantity;
-
-        // Calculate total price
-        $total_price = $request->quantity * $request->price;
-
         $purchase = new Purchase();
-        $purchase->fill($request->all());
         $purchase->no_purchase = $no_purchase;
+        $purchase->payment = $request->input('payment');
+        $purchase->supplier_id = $request->input('supplier_id');
         $purchase->date_purchase = $date_purchase;
-        $purchase->total_quantity = $total_quantity;
-        $purchase->total_price = $total_price; // Assign total_price
+        $purchase->total_price = $total_price;
         $purchase->save();
+
+        foreach($products as $product ) {
+            PurchaseDetail::create([
+                "purchase_id" => $purchase->id,
+                "product_id" => $product->product_id,
+                "unit_id" => $product->unit_id,
+                "quantity" => $product->qty,
+                "price" => $product->price,
+                "total_price" => $product->total,
+            ]);
+        }
+        
 
         return redirect()->route('purchase.index')->with('success', 'Purchase created successfully');
     }
@@ -77,9 +90,28 @@ class PurchaseController extends Controller
             $purchase->selected = 1;
             $purchase->save();
 
-            $products = Product::where("id", $purchase->product_id)->get(); // Ambil objek Product
-            foreach ($products as $product) {
-                $product->increment('stock', $purchase->quantity); // Menambah stok produk
+            Cache::flush();
+
+            // Redirect ke halaman detail pembelian atau ke halaman lain
+            return redirect("/purchase");
+        } else {
+            // Redirect ke halaman lain atau tampilkan pesan kesalahan
+            return redirect("/purchase");
+        }
+    }
+
+    public function delivery(Request $request, $id)
+    {
+        $purchase = Purchase::findOrFail($id);
+        if (!$purchase->selected_cancel) { // Memastikan pembelian belum dipilih untuk cancel
+            $purchase->selected = 3;
+            $purchase->save();
+
+            $purchaseDetails = PurchaseDetail::where("purchase_id", $purchase->id)->get(); // Ambil objek Product
+            foreach ($purchaseDetails as $detail) {
+
+                $product = Product::find($detail->product_id);
+                $product->increment('stock', $detail->quantity); // Menambah stok produk
                 $product->save();
             }
 
@@ -92,6 +124,7 @@ class PurchaseController extends Controller
             return redirect("/purchase");
         }
     }
+
 
 
     public function cancel(Request $request, $id)

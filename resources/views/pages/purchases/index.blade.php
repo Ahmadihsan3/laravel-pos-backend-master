@@ -46,11 +46,6 @@
                                                 <th>Nomor</th>
                                                 <th>Purchase No</th>
                                                 <th>Purchase Date</th>
-                                                <th>Nama Product</th>
-                                                <th>Price</th>
-                                                <th>Unit</th>
-                                                <th>Quantity</th>
-                                                <th>Total Quantity</th>
                                                 <th>Total Price</th>
                                                 <th>Nama Supplier</th>
                                                 <th>Payment</th>
@@ -66,11 +61,11 @@
                                                     <td>{{ $startNumber++ }}</td>
                                                     <td>{{ $purchase->no_purchase }}</td>
                                                     <td>{{ $purchase->date_purchase }}</td>
-                                                    <td>{{ $purchase->product->name }}</td>
+                                                    {{-- <td>{{ $purchase->product->name }}</td>
                                                     <td>{{ $purchase->price }}</td>
                                                     <td>{{ $purchase->unit->name }}</td>
                                                     <td>{{ $purchase->quantity }}</td>
-                                                    <td>{{ $purchase->total_quantity }}</td>
+                                                    <td>{{ $purchase->total_quantity }}</td> --}}
                                                     <td>{{ $purchase->total_price }}</td>
                                                     <td>{{ $purchase->supplier->name }}</td>
                                                     <td>{{ $purchase->payment }}</td>
@@ -85,6 +80,16 @@
                                                                 <a href='/purchase/action/cancel/{{ $purchase->id }}'
                                                                     class="btn btn-warning">
                                                                     <i class="fas fa-times"></i> Cancel
+                                                                </a>
+                                                            @endif
+                                                            @if (request("selected") !=null && $purchase->selected == 1)
+                                                                <a href='/purchase/action/edit/{{ $purchase->id }}'
+                                                                    class="btn btn-warning">
+                                                                    <i class="fas fa-file-excel"></i> Edit
+                                                                </a>
+                                                                <a href='/purchase/action/delivery/{{ $purchase->id }}'
+                                                                    class="btn btn-success">
+                                                                    <i class="fas fa-file-excel"></i> Delivery
                                                                 </a>
                                                             @endif
                                                             <a href='{{ route('purchase.export.excel', $purchase->id) }}'

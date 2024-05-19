@@ -42,20 +42,23 @@
                 </ul>
             </li>
 
-            <li class="nav-item dropdown">
-    <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>Purchase</span></a>
-    <ul class="dropdown-menu">
-        <li>
-            <a class="nav-link" href="{{ route('purchase.index') }}">All Purchase</a>
-        </li>
-        <li>
-            <a class="nav-link" href="purchase?selected=1">Success Purchase</a>
-        </li>
-        <li>
-            <a class="nav-link" href="purchase?selected=2">Cancel Purchase</a>
-        </li>
-    </ul>
-</li>
+            <li class="nav-item dropdown active">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>Purchase</span></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="nav-link" href="{{ route('purchase.index') }}">All Purchase</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="purchase?selected=1">Success Purchase</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="purchase?selected=2">Cancel Purchase</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="purchase?selected=3">Delivered Purchase</a>
+                    </li>
+                </ul>
+            </li>
 
 
             <li class="nav-item dropdown">

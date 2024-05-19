@@ -12,22 +12,7 @@ class Purchase extends Model
 
     use HasFactory;
 
-    protected $fillable = [
-        'id',
-        'no_purchase',
-        'date_purchase',
-        'product_id',
-        'quantity',
-        'total_quantity',
-        'price',
-        'payment',
-        'supplier_id',
-        'unit_id',
-        'created_at',
-        'updated_at'
-    ];
-
-    protected $guarded = [];
+    protected $guarded = ["id"];
 
     public function product()
     {

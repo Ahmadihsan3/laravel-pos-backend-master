@@ -50,5 +50,32 @@ class DatabaseSeeder extends Seeder
         //     "image" => ""
         // ]);
 
+        \App\Models\Product::create([
+            "name" => "GG FILTER 12",
+            "category_id" => 1,
+            "product_code" => "888410475",
+            "unit_id" => 1,
+            "stock" => 0,
+            "image" => "public/products/MepKNLRMzLzdK40lAIJwcXXhoEIpUHqfFMe7qq0l.jpg",
+        ]);
+
+        \App\Models\Product::create([
+            "name" => "SK KRETEK 12",
+            "category_id" => 1,
+            "product_code" => "886510475",
+            "unit_id" => 1,
+            "stock" => 0,
+            "image" => "public/products/MepKNLRMzLzdK40lAIJwcXXhoEIpUHqfFMe7qq0l.jpg",
+        ]);
+
+        \App\Models\Product::create([
+            "name" => "JR SUPER 20",
+            "category_id" => 1,
+            "product_code" => "888443475",
+            "unit_id" => 1,
+            "stock" => 0,
+            "image" => "public/products/MepKNLRMzLzdK40lAIJwcXXhoEIpUHqfFMe7qq0l.jpg",
+        ]);
+
     }
 }

@@ -16,17 +16,9 @@ class Product extends Model
 
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'product_code',
-        'category_id',
-        'unit_id',
-        'image',
-        'stock'
-        // Hilangkan 'purchase_id' dari sini, karena Anda ingin membiarkannya kosong saat membuat produk baru
-    ];
+    protected $fillable = [];
 
-    protected $guarded = [];
+    protected $guarded = ["id"];
 
     public function category()
     {
@@ -43,9 +35,9 @@ class Product extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function purchases()
+    public function purchaseDetails()
     {
-        return $this->hasMany(Purchase::class);
+        return $this->hasMany(PurchaseDetail::class);
     }
 
 }
