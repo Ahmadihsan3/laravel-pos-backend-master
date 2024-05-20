@@ -59,7 +59,10 @@
                                             @foreach ($purchases as $purchase)
                                                 <tr>
                                                     <td>{{ $startNumber++ }}</td>
-                                                    <td>{{ $purchase->no_purchase }}</td>
+                                                    <td> <a href="{{ route('purchase.show', $purchase->id) }}">
+                                                        {{ $purchase->no_purchase }}
+                                                    </a>
+                                                    </td>
                                                     <td>{{ $purchase->date_purchase }}</td>
                                                     {{-- <td>{{ $purchase->product->name }}</td>
                                                     <td>{{ $purchase->price }}</td>

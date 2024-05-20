@@ -77,7 +77,7 @@ class PurchaseController extends Controller
                 "total_price" => $product->total,
             ]);
         }
-        
+
 
         return redirect()->route('purchase.index')->with('success', 'Purchase created successfully');
     }
@@ -146,8 +146,28 @@ class PurchaseController extends Controller
         return Excel::download(new PurchasesExport, 'purchases.xlsx');
     }
 
-    public function show(Request $request, $id)
+    public function show($id)
     {
-        return "OKS";
+        $purchase = Purchase::findOrFail($id);
+        $purchaseDetail = PurchaseDetail::where('purchase_id', $id)->get();
+
+        return view('pages.purchases.show', compact('purchase', 'purchaseDetail'));
+    }
+
+    public function edit($id)
+    {
+        $purchaseDetail = PurchaseDetail::findOrFail($id);
+        $products = Product::all();
+        $units = Unit::all();
+        return view('pages.purchases.edit', compact('purchaseDetail', 'products', 'units'));
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $purchaseDetail = PurchaseDetail::findOrFail($id);
+        $data = $request->all();
+        $purchaseDetail->update($data);
+        return redirect()->route('/purchase')->with('success', 'Purchase detail updated successfully');
     }
 }
