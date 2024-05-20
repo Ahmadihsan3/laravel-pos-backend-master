@@ -7,15 +7,15 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class PurchasesExport implements FromCollection, WithHeadings, WithTitle
+class OrdersExport implements FromCollection, WithHeadings, WithTitle
 {
     public function collection()
     {
         // Mengambil semua pembelian
-        $purchases = Purchase::all();
+        $Order = Purchase::all();
 
         // Mengubah setiap catatan pembelian
-        $formattedPurchases = $purchases->map(function ($purchase) {
+        $formattedOrder = $Order->map(function ($purchase) {
             return [
                 'No' => $purchase->id,
                 'Purchase No' => $purchase->no_purchase,
@@ -31,7 +31,7 @@ class PurchasesExport implements FromCollection, WithHeadings, WithTitle
             ];
         });
 
-        return $formattedPurchases;
+        return $formattedOrder;
     }
 
     public function headings(): array
