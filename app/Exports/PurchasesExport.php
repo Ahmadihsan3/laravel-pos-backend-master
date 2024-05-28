@@ -3,31 +3,32 @@
 namespace App\Exports;
 
 use App\Models\Purchase;
+use App\Models\PurchaseDetail;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class PurchasesExport implements FromCollection, WithHeadings, WithTitle
+class PurchasesExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
 {
     public function collection()
     {
-        // Mengambil semua pembelian
-        $purchases = Purchase::all();
+        // Mengambil semua detail pembelian beserta informasi pembelian terkait
+        $purchaseDetails = PurchaseDetail::with('purchase', 'product', 'unit', 'purchase.supplier')->get();
 
         // Mengubah setiap catatan pembelian
-        $formattedPurchases = $purchases->map(function ($purchase) {
+        $formattedPurchases = $purchaseDetails->map(function ($purchaseDetail) {
             return [
-                'No' => $purchase->id,
-                'Purchase No' => $purchase->no_purchase,
-                'Purchase Date' => $purchase->date_purchase,
-                'Product Name' => $purchase->product->name,
-                'Quantity' => $purchase->quantity,
-                'Price' => $purchase->price,
-                'Total Price' => $purchase->total_price,
-                'Total Quantity' => $purchase->total_quantity,
-                'Payment' => $purchase->payment,
-                'Unit Name' => $purchase->unit->name,
-                'Supplier Name' => $purchase->supplier->name,
+                'No' => $purchaseDetail->purchase->id,
+                'Purchase No' => $purchaseDetail->purchase->no_purchase,
+                'Purchase Date' => $purchaseDetail->purchase->date_purchase,
+                'Product Name' => $purchaseDetail->product->name,
+                'Quantity' => $purchaseDetail->quantity,
+                'Price' => $purchaseDetail->price,
+                'Total Price' => $purchaseDetail->total_price,
+                'Payment' => $purchaseDetail->purchase->payment,
+                'Unit Name' => $purchaseDetail->unit->name,
+                'Supplier Name' => $purchaseDetail->purchase->supplier->name,
             ];
         });
 
@@ -37,27 +38,13 @@ class PurchasesExport implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
-            'No',
-            'Purchase No',
-            'Purchase Date',
-            'Product Name',
-            'Quantity',
-            'Price',
-            'Total Price',
-            'Total Quantity',
-            'Payment',
-            'Unit Name',
-            'Supplier Name',
+            ['Purchase Delivery'], // Judul
+            ['No', 'Purchase No', 'Purchase Date', 'Product Name', 'Quantity', 'Price', 'Total Price', 'Payment', 'Unit Name', 'Supplier Name'], // Heading kolom
         ];
     }
 
     public function title(): string
     {
-        return 'Toko Ini';
-    }
-
-    public function subtitle(): string
-    {
-        return 'Alamat Ini';
+        return 'Purchases';
     }
 }
