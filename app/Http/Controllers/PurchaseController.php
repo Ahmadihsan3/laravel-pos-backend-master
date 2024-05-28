@@ -156,18 +156,60 @@ class PurchaseController extends Controller
 
     public function edit($id)
     {
-        $purchaseDetail = PurchaseDetail::findOrFail($id);
+        $purchase = Purchase::findOrFail($id);
+        $purchaseDetails = $purchase->purchaseDetails; // Use the relationship to get the details
         $products = Product::all();
         $units = Unit::all();
-        return view('pages.purchases.edit', compact('purchaseDetail', 'products', 'units'));
-    }
+        $suppliers = Supplier::all();
 
+        return view('pages.purchases.edit', compact('purchase', 'purchaseDetails', 'products', 'units', 'suppliers'));
+    }
 
     public function update(Request $request, $id)
     {
-        $purchaseDetail = PurchaseDetail::findOrFail($id);
-        $data = $request->all();
-        $purchaseDetail->update($data);
-        return redirect()->route('/purchase')->with('success', 'Purchase detail updated successfully');
+        // Validate the incoming request data
+        $request->validate([
+            'payment' => 'required|in:Cash,Transfer',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'products' => 'required|json',
+        ]);
+
+        // Find the purchase record
+        $purchase = Purchase::findOrFail($id);
+
+        // Update the purchase record
+        $purchase->payment = $request->input('payment');
+        $purchase->supplier_id = $request->input('supplier_id');
+        $purchase->save();
+
+        // Decode the products JSON string
+        $products = json_decode($request->input('products'), true);
+
+        // Clear existing purchase details
+        PurchaseDetail::where('purchase_id', $purchase->id)->delete();
+
+        // Initialize the total price
+        $total_price = 0;
+
+        // Loop through each product and create new purchase detail records
+        foreach ($products as $product) {
+            $total_price += $product['total'];
+
+            PurchaseDetail::create([
+                'purchase_id' => $purchase->id,
+                'product_id' => $product['product_id'],
+                'unit_id' => $product['unit_id'],
+                'quantity' => $product['qty'],
+                'price' => $product['price'],
+                'total_price' => $product['total'],
+            ]);
+        }
+
+        // Update the total price of the purchase
+        $purchase->total_price = $total_price;
+        $purchase->save();
+
+        return redirect()->route('purchase.index')->with('success', 'Purchase updated successfully');
     }
+
 }

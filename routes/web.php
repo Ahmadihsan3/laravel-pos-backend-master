@@ -20,9 +20,9 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('home', function () {
+    Route::get('dashboard', function () {
         return view('pages.dashboard');
-    })->name('home');
+    })->name('dashboard');
 
     Route::resource('user', UserController::class);
     Route::resource('category', \App\Http\Controllers\CategoryController::class);
@@ -32,11 +32,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('purchase/action/cancel/{id}', [\App\Http\Controllers\PurchaseController::class, 'cancel'])->name('purchase.cancel');
     Route::get('purchase/action/delivery/{id}', [\App\Http\Controllers\PurchaseController::class, 'delivery'])->name('purchase.delivery');
     Route::get('purchase/action/edit/{id}', [\App\Http\Controllers\PurchaseController::class, 'edit'])->name('purchase.edit');
-    Route::get('purchase/action/update/{id}', [\App\Http\Controllers\PurchaseController::class, 'update'])->name('purchase.update');
+    Route::put('/purchase/{id}', [PurchaseController::class, 'update'])->name('purchase.update');
     Route::get('/purchases/export', [PurchaseController::class, 'exportToExcel'])->name('purchase.export.excel');
     Route::resource('supplier', \App\Http\Controllers\SupplierController::class);
     Route::resource('unit', \App\Http\Controllers\UnitController::class);
     Route::resource('product', \App\Http\Controllers\ProductController::class);
     Route::resource('order', \App\Http\Controllers\OrderController::class);
     Route::resource('quotation', \App\Http\Controllers\QuotationController::class);
+    Route::resource('dashboard', \App\Http\Controllers\DashboardController::class);
 });

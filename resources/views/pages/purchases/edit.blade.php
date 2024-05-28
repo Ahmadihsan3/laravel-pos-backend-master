@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Purchase')
+@section('title', 'Edit Purchase')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,87 +16,47 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Create Purchase</h1>
+                <h1>Edit Purchase</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
                     <div class="breadcrumb-item"><a href="#">Forms</a></div>
                     <div class="breadcrumb-item">Purchases</div>
-                    <div class="breadcrumb-item">Create</div>
+                    <div class="breadcrumb-item">Edit</div>
                 </div>
             </div>
 
             <div class="section-body">
                 <div class="card">
-                    <form action="{{ route('purchase.update', ['id' => $purchaseDetail->id]) }}" method="POST">
+                    <form action="{{ route('purchase.update', ['id' => $purchase->id]) }}" method="POST">
                         @csrf
-                        <input type="hidden" name="products" id="products" value="22"/>
+                        @method('PUT')
+                        <input type="hidden" name="products" id="products" value="">
 
                         <div class="card-header">
-                            <h4>Create Purchases</h4>
+                            <h4>Edit Purchase</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Payment Method</label>
-                                        <select class="form-control" name="payment">
-                                            <option value="Cash">Cash</option>
-                                            <option value="Transfer">Transfer</option>
-                                        </select>
-                                    </div>
-                                    {{-- <div class="form-group">
-                                        <label>Supplier</label>
-                                        <select class="form-control" name="supplier_id">
-                                            @foreach ($suppliers as $supplier)
-                                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div> --}}
-                                </div>
-                            </div>
-                            <hr />
-                            <div class="row">
-                                <div class="col-md-4" style="background: #e3e6e8; padding: 24px 24px;">
-                                    <div class="form-group">
-                                        <label>Product</label>
-                                        <select class="form-control" id="product_id">
-                                            @foreach ($products as $product)
-                                                <option value="{{ $product->id }}">{{ $product->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control" id="qty">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Price</label>
-                                        <input type="number" class="form-control" id="price">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Unit</label>
-                                        <select class="form-control" id="unit_id">
-                                            @foreach ($units as $unit)
-                                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <button class="btn btn-success" id="add-btn" type="button">Add</button>
-                                    </div>
-
-                                </div>
-                                <div class="col-md-8">
                                     <table class="table" id="product-table">
                                         <thead>
                                             <tr>
                                                 <th>Product</th>
                                                 <th>Qty</th>
                                                 <th>Price</th>
-                                                <th class="align-right">Total </th>
+                                                <th class="align-right">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody></tbody>
+                                        <tbody>
+                                            @foreach ($purchaseDetails as $detail)
+                                                <tr id="product-{{ $detail->product_id }}">
+                                                    <td>{{ $detail->product->name }}</td>
+                                                    <td contenteditable="true" class="editable-qty">{{ $detail->quantity }} {{ $detail->unit->name }}</td>
+                                                    <td contenteditable="true" class="editable-price">{{ $detail->price }}</td>
+                                                    <td>{{ $detail->total_price }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -110,3 +70,103 @@
         </section>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        var products = [];
+
+$(document).on("input", ".editable-qty, .editable-price", function() {
+    var row = $(this).closest("tr");
+    var qty = parseFloat(row.find(".editable-qty").text());
+    var price = parseFloat(row.find(".editable-price").text());
+    var total = qty * price;
+    row.find("td:last").text(total);
+
+    var productId = parseInt(row.attr('id').split('-')[1]);
+    products = products.map(product => {
+        if (product.product_id === productId) {
+            product.qty = qty;
+            product.price = price;
+            product.total = total;
+        }
+        return product;
+    });
+
+    $("#products").val(JSON.stringify(products));
+});
+
+$(document).on("click", "#add-btn", function(e) {
+    e.preventDefault();
+
+    var unitName = $("#unit_id").find("option:selected").text();
+    var productName = $("#product_id").find("option:selected").text();
+
+    var productId = parseInt($("#product_id").val());
+    var unitId = parseInt($("#unit_id").val());
+    var qty = parseFloat($("#qty").val());
+    var price = parseFloat($("#price").val());
+    var total = qty * price;
+
+    const productExists = products.some(product => product.product_id === productId);
+
+    if (productExists) {
+
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].product_id === productId) {
+                products[i].qty += parseFloat(qty);
+                qty += products[i].qty;
+
+                break;
+            }
+        }
+
+        $("#product-table tbody")
+            .find(`#product-${productId}`)
+            .html(`
+            <td>${productName}</td>
+            <td contenteditable="true" class="editable-qty">${qty} ${unitName}</td>
+            <td contenteditable="true" class="editable-price">${price}</td>
+            <td>${total}</td>`);
+    } else {
+        products.push({
+            "product_id": productId,
+            "unit_id": unitId,
+            "product_name": productName,
+            "unit_name": unitName,
+            "qty": qty,
+            "price": price,
+            "total": total,
+        });
+
+        $("#product-table tbody").append(`
+        <tr id="product-${productId}">
+            <td>${productName}</td>
+            <td contenteditable="true" class="editable-qty">${qty} ${unitName}</td>
+            <td contenteditable="true" class="editable-price">${price}</td>
+            <td>${total}</td>
+        </tr>
+    `);
+    }
+
+    $("#products").val(JSON.stringify(products));
+});
+
+// Initialize products array with existing purchase details
+$(document).ready(function() {
+    @foreach ($purchaseDetails as $detail)
+    products.push({
+        "product_id": {{ $detail->product_id }},
+        "unit_id": {{ $detail->unit_id }},
+        "product_name": "{{ $detail->product->name }}",
+        "unit_name": "{{ $detail->unit->name }}",
+        "qty": {{ $detail->quantity }},
+        "price": {{ $detail->price }},
+        "total": {{ $detail->total_price }},
+    });
+    @endforeach
+
+    $("#products").val(JSON.stringify(products));
+});
+
+    </script>
+@endpush

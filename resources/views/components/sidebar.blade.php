@@ -1,10 +1,10 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-            <a href="index.html">Inventory Management</a>
+            <a href="{{ route('dashboard.index') }}">Inventory Management</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="index.html">IM</a>
+            <a href="{{ route('dashboard.index') }}">IM</a>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-header">Menu Inventory</li>
