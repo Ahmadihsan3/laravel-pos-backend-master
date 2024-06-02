@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit User')
+@section('title', 'Edit order')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,96 +16,48 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Advanced Forms</h1>
+                <h1>Edit order</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
                     <div class="breadcrumb-item"><a href="#">Forms</a></div>
-                    <div class="breadcrumb-item">Users</div>
+                    <div class="breadcrumb-item">orders</div>
+                    <div class="breadcrumb-item">Edit</div>
                 </div>
             </div>
 
             <div class="section-body">
-                <h2 class="section-title">Users</h2>
-
-
-
                 <div class="card">
-                    <form action="{{ route('user.update', $user) }}" method="POST">
+                    <form action="{{ route('order.update', ['id' => $order->id]) }}" method="POST">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" name="products" id="products" value="">
+
                         <div class="card-header">
-                            <h4>Input Text</h4>
+                            <h4>Edit order</h4>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <label>Name</label>
-                                <input type="text"
-                                    class="form-control @error('name')
-                                is-invalid
-                            @enderror"
-                                    name="name" value="{{ $user->name }}">
-                                @error('name')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email"
-                                    class="form-control @error('email')
-                                is-invalid
-                            @enderror"
-                                    name="email" value="{{ $user->email }}">
-                                @error('email')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <i class="fas fa-lock"></i>
-                                        </div>
-                                    </div>
-                                    <input type="password"
-                                        class="form-control @error('password')
-                                is-invalid
-                            @enderror"
-                                        name="password">
-                                </div>
-                                @error('password')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="number" class="form-control" name="phone" value="{{ $user->phone }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Roles</label>
-                                <div class="selectgroup w-100">
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="admin" class="selectgroup-input"
-                                            @if ($user->roles == 'admin') checked @endif>
-                                        <span class="selectgroup-button">Admin</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="staff" class="selectgroup-input"
-                                            @if ($user->roles == 'staff') checked @endif>
-                                        <span class="selectgroup-button">Staff</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="roles" value="user" class="selectgroup-input"
-                                            @if ($user->roles == 'user') checked @endif>
-                                        <span class="selectgroup-button">User</span>
-                                    </label>
-
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table" id="product-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Qty</th>
+                                                <th>Price</th>
+                                                <th class="align-right">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($orderDetails as $detail)
+                                                <tr id="product-{{ $detail->product_id }}">
+                                                    <td>{{ $detail->product->name }}</td>
+                                                    <td contenteditable="true" class="editable-qty">{{ $detail->quantity }} {{ $detail->unit->name }}</td>
+                                                    <td contenteditable="true" class="editable-price">{{ $detail->price }}</td>
+                                                    <td>{{ $detail->total_price }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -114,11 +66,107 @@
                         </div>
                     </form>
                 </div>
-
             </div>
         </section>
     </div>
 @endsection
 
 @push('scripts')
+    <script>
+        var products = [];
+
+$(document).on("input", ".editable-qty, .editable-price", function() {
+    var row = $(this).closest("tr");
+    var qty = parseFloat(row.find(".editable-qty").text());
+    var price = parseFloat(row.find(".editable-price").text());
+    var total = qty * price;
+    row.find("td:last").text(total);
+
+    var productId = parseInt(row.attr('id').split('-')[1]);
+    products = products.map(product => {
+        if (product.product_id === productId) {
+            product.qty = qty;
+            product.price = price;
+            product.total = total;
+        }
+        return product;
+    });
+
+    $("#products").val(JSON.stringify(products));
+});
+
+$(document).on("click", "#add-btn", function(e) {
+    e.preventDefault();
+
+    var unitName = $("#unit_id").find("option:selected").text();
+    var productName = $("#product_id").find("option:selected").text();
+
+    var productId = parseInt($("#product_id").val());
+    var unitId = parseInt($("#unit_id").val());
+    var qty = parseFloat($("#qty").val());
+    var price = parseFloat($("#price").val());
+    var total = qty * price;
+
+    const productExists = products.some(product => product.product_id === productId);
+
+    if (productExists) {
+
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].product_id === productId) {
+                products[i].qty += parseFloat(qty);
+                qty += products[i].qty;
+
+                break;
+            }
+        }
+
+        $("#product-table tbody")
+            .find(`#product-${productId}`)
+            .html(`
+            <td>${productName}</td>
+            <td contenteditable="true" class="editable-qty">${qty} ${unitName}</td>
+            <td contenteditable="true" class="editable-price">${price}</td>
+            <td>${total}</td>`);
+    } else {
+        products.push({
+            "product_id": productId,
+            "unit_id": unitId,
+            "product_name": productName,
+            "unit_name": unitName,
+            "qty": qty,
+            "price": price,
+            "total": total,
+        });
+
+        $("#product-table tbody").append(`
+        <tr id="product-${productId}">
+            <td>${productName}</td>
+            <td contenteditable="true" class="editable-qty">${qty} ${unitName}</td>
+            <td contenteditable="true" class="editable-price">${price}</td>
+            <td>${total}</td>
+        </tr>
+    `);
+    }
+
+    $("#products").val(JSON.stringify(products));
+});
+
+// Initialize products array with existing order details
+$(document).ready(function() {
+    @foreach ($orderDetails as $detail)
+    products.push({
+        "product_id": {{ $detail->product_id }},
+        "unit_id": {{ $detail->unit_id }},
+        "product_name": "{{ $detail->product->name }}",
+        "unit_name": "{{ $detail->unit->name }}",
+        "qty": {{ $detail->quantity }},
+        "price": {{ $detail->price }},
+        "total": {{ $detail->total_price }},
+    });
+    @endforeach
+
+    $("#products").val(JSON.stringify(products));
+});
+
+    </script>
 @endpush

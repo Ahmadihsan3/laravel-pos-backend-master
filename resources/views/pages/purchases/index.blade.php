@@ -64,11 +64,6 @@
                                                     </a>
                                                     </td>
                                                     <td>{{ $purchase->date_purchase }}</td>
-                                                    {{-- <td>{{ $purchase->product->name }}</td>
-                                                    <td>{{ $purchase->price }}</td>
-                                                    <td>{{ $purchase->unit->name }}</td>
-                                                    <td>{{ $purchase->quantity }}</td>
-                                                    <td>{{ $purchase->total_quantity }}</td> --}}
                                                     <td>{{ $purchase->total_price }}</td>
                                                     <td>{{ $purchase->supplier->name }}</td>
                                                     <td>{{ $purchase->payment }}</td>
@@ -95,8 +90,7 @@
                                                                     <i class="fas fa-file-excel"></i> Delivery
                                                                 </a>
                                                             @endif
-                                                            <a href='{{ route('purchase.export.excel', $purchase->id) }}'
-                                                                class="btn btn-info">
+                                                            <a href="{{ route('purchase.export.excel', $purchase->id) }}" class="btn btn-info">
                                                                 <i class="fas fa-file-excel"></i> Export Excel
                                                             </a>
                                                         </div>

@@ -34,15 +34,18 @@
                         <a class="nav-link" href="{{ route('order.index') }}">All Orders</a>
                     </li>
                     <li>
-                        <a class="nav-link" href="{{ route('order.index') }}">Success Orders</a>
+                        <a class="nav-link" href="order?selected=1">Success Purchase</a>
                     </li>
                     <li>
-                        <a class="nav-link" href="{{ route('order.index') }}">Cancel Orders</a>
+                        <a class="nav-link" href="order?selected=2">Cancel Purchase</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="order?selected=3">Delivered Purchase</a>
                     </li>
                 </ul>
             </li>
 
-            <li class="nav-item dropdown active">
+            <li class="nav-item dropdown">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>Purchase</span></a>
                 <ul class="dropdown-menu">
                     <li>
@@ -56,22 +59,6 @@
                     </li>
                     <li>
                         <a class="nav-link" href="purchase?selected=3">Delivered Purchase</a>
-                    </li>
-                </ul>
-            </li>
-
-
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>Quotation</span></a>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="nav-link" href="{{ route('quotation.index') }}">All Quotation</a>
-                    </li>
-                    <li>
-                        <a class="nav-link" href="{{ route('quotation.index') }}">Success Quotation</a>
-                    </li>
-                    <li>
-                        <a class="nav-link" href="{{ route('quotation.index') }}">Cancel Quotation</a>
                     </li>
                 </ul>
             </li>

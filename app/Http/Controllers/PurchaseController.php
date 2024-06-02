@@ -12,6 +12,8 @@ use App\Exports\PurchasesExport;
 use App\Models\PurchaseDetail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
 
 class PurchaseController extends Controller
 {
@@ -44,14 +46,6 @@ class PurchaseController extends Controller
         foreach($products as $product ) {
             $total_price += $product->total;
         }
-        // $request->validate([
-        //     'product_id' => 'required|exists:products,id',
-        //     'quantity' => 'required|integer|min:1',
-        //     'price' => 'required|integer|min:0',
-        //     'payment' => 'required|in:cash,transfer',
-        //     'supplier_id' => 'required|exists:suppliers,id',
-        //     'unit_id' => 'required|exists:units,id',
-        // ]);
 
         // Generate purchase number
         $lastPurchase = Purchase::latest()->first();
@@ -141,9 +135,9 @@ class PurchaseController extends Controller
         }
     }
 
-    public function exportToExcel()
+    public function exportToExcel($purchase_id)
     {
-        return Excel::download(new PurchasesExport, 'purchases.xlsx');
+        return Excel::download(new PurchasesExport($purchase_id), 'purchases.xlsx');
     }
 
     public function show($id)
@@ -171,7 +165,12 @@ class PurchaseController extends Controller
         $request->validate([
             'payment' => 'required|in:Cash,Transfer',
             'supplier_id' => 'required|exists:suppliers,id',
-            'products' => 'required|json',
+            'products' => 'required|array', // Ubah validasi untuk produk menjadi array
+            'products.*.product_id' => 'required|exists:products,id', // Validasi product_id untuk setiap item
+            'products.*.unit_id' => 'required|exists:units,id', // Validasi unit_id untuk setiap item
+            'products.*.qty' => 'required|integer|min:1', // Validasi qty untuk setiap item
+            'products.*.price' => 'required|numeric|min:0', // Validasi price untuk setiap item
+            'products.*.total' => 'required|numeric|min:0', // Validasi total untuk setiap item
         ]);
 
         // Find the purchase record
@@ -183,7 +182,7 @@ class PurchaseController extends Controller
         $purchase->save();
 
         // Decode the products JSON string
-        $products = json_decode($request->input('products'), true);
+        $products = $request->input('products');
 
         // Clear existing purchase details
         PurchaseDetail::where('purchase_id', $purchase->id)->delete();
@@ -209,6 +208,7 @@ class PurchaseController extends Controller
         $purchase->total_price = $total_price;
         $purchase->save();
 
+        // Redirect back to purchase index with success message
         return redirect()->route('purchase.index')->with('success', 'Purchase updated successfully');
     }
 

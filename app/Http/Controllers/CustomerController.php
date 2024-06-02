@@ -32,7 +32,7 @@ class CustomerController extends Controller
         $request->validate([
             'name' => 'required|min:3|unique:customers',
             'email' => 'required|string|email|max:255|unique:customers',
-            'phone' => 'required|integer',
+            'phone' => ['required', 'regex:/^08[0-9]{8,13}$/'], // Validasi regex
             'address' => 'required|string',
             'bank_name' => 'required|string',
             'account_header' => 'required|string',
@@ -42,8 +42,11 @@ class CustomerController extends Controller
         $data = $request->all();
         Customer::create($data);
 
-        return redirect()->route('customer.index')->with('success', 'Product successfully created');
+        return redirect()->route('customer.index')->with('success', 'Customer successfully created');
     }
+
+
+
 
     public function edit($id)
     {

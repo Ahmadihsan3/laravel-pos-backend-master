@@ -18,9 +18,9 @@ class Order extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function supplier()
+    public function customer()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function unit()
@@ -28,8 +28,8 @@ class Order extends Model
         return $this->belongsTo(Unit::class);
     }
 
-    public function purchaseDetails()
+    public function orderDetails()
     {
-        return $this->hasMany(PurchaseDetail::class);
+        return $this->hasMany(OrderDetail::class);
     }
 }

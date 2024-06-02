@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Supplier;
+use App\Models\Customer;
 use App\Models\Unit;
 use Carbon\Carbon;
-use App\Exports\ordersExport;
+use App\Exports\OrdersExport;
 use App\Models\OrderDetail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
@@ -30,11 +30,11 @@ class OrderController extends Controller
     public function create()
     {
         $products = Product::all();
-        $suppliers = Supplier::all();
+        $customers = Customer::all();
         $units = Unit::all();
         $orders = Order::all();
 
-        return view('pages.orders.create', compact('products', 'suppliers', 'units', 'orders'));
+        return view('pages.orders.create', compact('products', 'customers', 'units', 'orders'));
     }
 
     public function store(Request $request)
@@ -45,32 +45,24 @@ class OrderController extends Controller
         foreach($products as $product ) {
             $total_price += $product->total;
         }
-        // $request->validate([
-        //     'product_id' => 'required|exists:products,id',
-        //     'quantity' => 'required|integer|min:1',
-        //     'price' => 'required|integer|min:0',
-        //     'payment' => 'required|in:cash,transfer',
-        //     'supplier_id' => 'required|exists:suppliers,id',
-        //     'unit_id' => 'required|exists:units,id',
-        // ]);
 
         // Generate Order number
         $lastOrder = Order::latest()->first();
-        $date_Order = Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString();
-        $lastNumber = $lastOrder ? (int)substr($lastOrder->no_Order, -5) : 0;
-        $no_Order = Carbon::now()->format('dmY') . '-' . str_pad(($lastNumber + 1), 5, '0', STR_PAD_LEFT);
+        $date_order = Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString();
+        $lastNumber = $lastOrder ? (int)substr($lastOrder->no_order, -5) : 0;
+        $no_order = Carbon::now()->format('dmY') . '-' . str_pad(($lastNumber + 1), 5, '0', STR_PAD_LEFT);
 
-        $Order = new Order();
-        $Order->no_Order = $no_Order;
-        $Order->payment = $request->input('payment');
-        $Order->supplier_id = $request->input('supplier_id');
-        $Order->date_Order = $date_Order;
-        $Order->total_price = $total_price;
-        $Order->save();
+        $order = new Order();
+        $order->no_order = $no_order;
+        $order->payment = $request->input('payment');
+        $order->customer_id = $request->input('customer_id');
+        $order->date_order = $date_order;
+        $order->total_price = $total_price;
+        $order->save();
 
         foreach($products as $product ) {
             OrderDetail::create([
-                "Order_id" => $Order->id,
+                "order_id" => $order->id,
                 "product_id" => $product->product_id,
                 "unit_id" => $product->unit_id,
                 "quantity" => $product->qty,
@@ -79,50 +71,49 @@ class OrderController extends Controller
             ]);
         }
 
-
-        return redirect()->route('Order.index')->with('success', 'Order created successfully');
+        return redirect()->route('order.index')->with('success', 'Order created successfully');
     }
 
     // Contoh dalam OrderController
     public function accept(Request $request, $id)
     {
-        $Order = Order::findOrFail($id);
-        if (!$Order->selected_cancel) { // Memastikan pembelian belum dipilih untuk cancel
-            $Order->selected = 1;
-            $Order->save();
+        $order = Order::findOrFail($id);
+        if (!$order->selected_cancel) { // Memastikan pembelian belum dipilih untuk cancel
+            $order->selected = 1;
+            $order->save();
 
             Cache::flush();
 
             // Redirect ke halaman detail pembelian atau ke halaman lain
-            return redirect("/Order");
+            return redirect("/order");
         } else {
             // Redirect ke halaman lain atau tampilkan pesan kesalahan
-            return redirect("/Order");
+            return redirect("/order");
         }
     }
 
     public function delivery(Request $request, $id)
     {
-        $Order = Order::findOrFail($id);
-        if (!$Order->selected_cancel) { // Memastikan pembelian belum dipilih untuk cancel
-            $Order->selected = 3;
-            $Order->save();
+        $order = Order::findOrFail($id);
+        if (!$order->selected_cancel) { // Memastikan pembelian belum dipilih untuk cancel
+            $order->selected = 3;
+            $order->save();
 
-            $OrderDetails = OrderDetail::where("Order_id", $Order->id)->get(); // Ambil objek Product
-            foreach ($OrderDetails as $detail) {
+            $orderDetails = OrderDetail::where("order_id", $order->id)->get(); // Ambil objek Product
+            foreach ($orderDetails as $detail) {
 
                 $product = Product::find($detail->product_id);
-                $product->increment('stock', $detail->quantity); // Menambah stok produk
+                $product->decrement('stock', $detail->quantity); // Menambah stok produk
                 $product->save();
             }
 
             Cache::flush();
 
             // Redirect ke halaman detail pembelian atau ke halaman lain
-            return redirect("/Order");
+            return redirect("/order");
         } else {
             // Redirect ke halaman lain atau tampilkan pesan kesalahan
-            return redirect("/Order");
+            return redirect("/order");
         }
     }
 
@@ -130,21 +121,21 @@ class OrderController extends Controller
 
     public function cancel(Request $request, $id)
     {
-        $Order = Order::findOrFail($id);
-        if (!$Order->selected) { // Memastikan pembelian belum dipilih untuk accept
-            $Order->selected = 2;
-            $Order->save();
+        $order = Order::findOrFail($id);
+        if (!$order->selected) { // Memastikan pembelian belum dipilih untuk accept
+            $order->selected = 2;
+            $order->save();
             // Redirect ke halaman detail pembelian atau ke halaman lain
-            return redirect("/Order");
+            return redirect("/order");
         } else {
             // Redirect ke halaman lain atau tampilkan pesan kesalahan
-            return redirect("/Order");
+            return redirect("/order");
         }
     }
 
-    public function exportToExcel()
+    public function exportToExcel($order_id)
     {
-        return Excel::download(new ordersExport, 'orders.xlsx');
+        return Excel::download(new OrdersExport($order_id), 'orders.xlsx');
     }
 
     public function show($id)

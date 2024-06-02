@@ -36,11 +36,7 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label>Name</label>
-                                <input type="text"
-                                    class="form-control @error('name')
-                                is-invalid
-                            @enderror"
-                                    name="name">
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" required>
                                 @error('name')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -50,11 +46,7 @@
 
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email"
-                                    class="form-control @error('email')
-                                is-invalid
-                            @enderror"
-                                    name="email">
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" required>
                                 @error('email')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -64,16 +56,18 @@
 
                             <div class="form-group">
                                 <label>Phone</label>
-                                <input type="number" class="form-control" name="phone">
+                                <input type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" placeholder="08XXXXXXXXXX" required>
+                                @error('phone')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
+
 
                             <div class="form-group">
                                 <label>Address</label>
-                                <input type="text"
-                                    class="form-control @error('address')
-                                is-invalid
-                            @enderror"
-                                    name="address">
+                                <input type="text" class="form-control @error('address') is-invalid @enderror" name="address" required>
                                 @error('address')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -82,12 +76,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Name Bank</label>
-                                <input type="text"
-                                    class="form-control @error('bank_name')
-                                is-invalid
-                            @enderror"
-                                    name="bank_name">
+                                <label>Bank Name</label>
+                                <input type="text" class="form-control @error('bank_name') is-invalid @enderror" name="bank_name" required>
                                 @error('bank_name')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -97,11 +87,7 @@
 
                             <div class="form-group">
                                 <label>Account Header</label>
-                                <input type="text"
-                                    class="form-control @error('account_header')
-                                is-invalid
-                            @enderror"
-                                    name="account_header">
+                                <input type="text" class="form-control @error('account_header') is-invalid @enderror" name="account_header" required>
                                 @error('account_header')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -111,18 +97,13 @@
 
                             <div class="form-group">
                                 <label>Account Number</label>
-                                <input type="number"
-                                    class="form-control @error('account_number')
-                                is-invalid
-                            @enderror"
-                                    name="account_number">
+                                <input type="number" class="form-control @error('account_number') is-invalid @enderror" name="account_number" required>
                                 @error('account_number')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
                                 @enderror
                             </div>
-
                         </div>
                         <div class="card-footer text-right">
                             <button class="btn btn-primary">Submit</button>

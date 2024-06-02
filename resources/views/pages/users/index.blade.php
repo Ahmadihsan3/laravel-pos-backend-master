@@ -64,6 +64,7 @@
                                             <th>Nomor</th>
                                             <th>Name</th>
                                             <th>Email</th>
+                                            <th>Role</th>
                                             <th>Created At</th>
                                             <th>Action</th>
                                         </tr>
@@ -75,6 +76,7 @@
                                                 <td>{{ $startNumber++ }}</td>
                                                 <td>{{ $user->name }}</td>
                                                 <td>{{ $user->email }}</td>
+                                                <td>{{ $user->role }}</td>
                                                 <td>{{ $user->created_at }}</td>
                                                 <td>
                                                     <div class="d-flex justify-content-center">

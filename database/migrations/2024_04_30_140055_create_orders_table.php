@@ -11,18 +11,18 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('no_orders');
-            $table->foreignId('customers_id')->constrained('customers')->onDelete('cascade');
-            $table->timestamp('date_purchase')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->string('no_order');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->timestamp('date_order')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->unsignedInteger('total_price');
             $table->enum('payment', ['Cash', 'Transfer']);
             $table->boolean('selected')->default(false);
             $table->timestamps();
         });
 
-        Schema::create('orders_details', function (Blueprint $table) {
+        Schema::create('order_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('orders_id')->constrained('orders')->onDelete('cascade');
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('unit_id')->constrained('units')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->unsignedInteger('quantity');

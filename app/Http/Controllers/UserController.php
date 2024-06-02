@@ -33,6 +33,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:7|confirmed',
+            'role' => 'required|in:admin,owner',
         ], [
             'password.min' => 'Password harus memiliki setidaknya 7 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
@@ -45,7 +46,6 @@ class UserController extends Controller
         return redirect()->route('user.index')->with('success', 'User successfully created');
     }
 
-
     public function edit($id)
     {
         $user = \App\Models\User::findOrFail($id);
@@ -54,8 +54,19 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->validated();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:7|confirmed',
+            'role' => 'required|in:admin,owner',
+        ]);
+
+        $data = $request->only('name', 'email', 'role');
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
         $user->update($data);
+
         return redirect()->route('user.index')->with('success', 'User successfully updated');
     }
 

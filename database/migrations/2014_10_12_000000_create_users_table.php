@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('password_confirmation')->nullable()->default(null); // Kolom dapat nullable dan default null
+            $table->string('password_confirmation')->nullable()->default(null);
+            $table->enum('role', ['admin', 'owner'])->default('admin');
             $table->rememberToken();
             $table->timestamps();
         });

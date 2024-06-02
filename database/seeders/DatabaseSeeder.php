@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Ahmad Ihsan',
             'email' => 'ihsan@admin.com',
             'password' => Hash::make('12345678'),
+            'role' => 'admin',
         ]);
 
         \App\Models\Unit::create([
@@ -43,12 +44,15 @@ class DatabaseSeeder extends Seeder
             "address" => "Bogor"
         ]);
 
-        // \App\Models\Product::create([
-        //     "name" => "Beras 1KG",
-        //     "product_code" => "PRD-1000",
-        //     "category_id" => 1,
-        //     "image" => ""
-        // ]);
+        \App\Models\Customer::create([
+            "name" => "Budi",
+            "email" => "budi@demo.com",
+            "phone" => "08999277428",
+            "address" => "Bogor",
+            "bank_name" => "BCA",
+            "account_header" => "Budi",
+            "account_number" => "12345566",
+        ]);
 
         \App\Models\Product::create([
             "name" => "GG FILTER 12",

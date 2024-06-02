@@ -32,88 +32,76 @@
                     You can manage all Orders, such as editing, deleting and more.
                 </p>
 
-
                 <div class="row mt-4">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>All Posts</h4>
+                                <h4>All Orders</h4>
                             </div>
                             <div class="card-body">
-                                <div class="float-left">
-                                    <select class="form-control selectric">
-                                        <option>Action For Selected</option>
-                                        <option>Move to Draft</option>
-                                        <option>Move to Pending</option>
-                                        <option>Delete Pemanently</option>
-                                    </select>
-                                </div>
-                                <div class="float-right">
-                                    <form method="GET" action="{{ route('orders.index') }}">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search" name="name">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="clearfix mb-3"></div>
-
                                 <div class="table-responsive">
-                                    <table class="table-striped table">
-                                        <tr>
-                                            <th>Nomor</th>
-                                            <th>No Invoice</th>
-                                            <th>Nama Produk</th>
-                                            <th>Created At</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        @php
-                                            $startNumber = 1; // Define start number here
-                                        @endphp
-                                        @foreach ($orders as $orders)
+                                    <table class="table table-striped">
+                                        <thead>
                                             <tr>
-                                                <td>{{ $startNumber++ }}</td>
-                                                <td>{{ $orders->name }}
-                                                </td>
-                                                <td>
-                                                    {{ $orders->email }}
-                                                </td>
-
-                                                <td>{{ $orders->created_at }}</td>
-                                                <td>
-                                                    <div class="d-flex justify-content-center">
-                                                        <a href='{{ route('orders.edit', $orders->id) }}'
-                                                            class="btn btn-sm btn-info btn-icon">
-                                                            <i class="fas fa-edit"></i>
-                                                            Accept
-                                                        </a>
-                                                        <a href='{{ route('orders.edit', $orders->id) }}'
-                                                            class="btn btn-sm btn-info btn-icon">
-                                                            <i class="fas fa-edit"></i>
-                                                            Detail
-                                                        </a>
-                                                        <form action="{{ route('orders.destroy', $orders->id) }}" method="POST"
-                                                            class="ml-2">
-                                                            <input type="hidden" name="_method" value="DELETE" />
-                                                            <input type="hidden" name="_token"
-                                                                value="{{ csrf_token() }}" />
-                                                            <button class="btn btn-sm btn-danger btn-icon confirm-delete">
-                                                                <i class="fas fa-times"></i> Cancel
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
+                                                <th>Nomor</th>
+                                                <th>order No</th>
+                                                <th>order Date</th>
+                                                <th>Total Price</th>
+                                                <th>Nama Supplier</th>
+                                                <th>Payment</th>
+                                                <th>Action</th>
                                             </tr>
-                                        @endforeach
-
-
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $startNumber = 1; // Define start number here
+                                            @endphp
+                                            @foreach ($orders as $order)
+                                                <tr>
+                                                    <td>{{ $startNumber++ }}</td>
+                                                    <td> <a href="{{ route('order.show', $order->id) }}">
+                                                        {{ $order->no_order }}
+                                                    </a>
+                                                    </td>
+                                                    <td>{{ $order->date_order }}</td>
+                                                    <td>{{ $order->total_price }}</td>
+                                                    <td>{{ $order->customer->name }}</td>
+                                                    <td>{{ $order->payment }}</td>
+                                                    <td>
+                                                        <div class="btn-group" role="group">
+                                                            @if (!$order->selected)
+                                                                <!-- Tampilkan tombol hanya jika pembelian belum dipilih -->
+                                                                <a href='/order/action/accept/{{ $order->id }}'
+                                                                    class="btn btn-success">
+                                                                    <i class="fas fa-check"></i> Accept
+                                                                </a>
+                                                                <a href='/order/action/cancel/{{ $order->id }}'
+                                                                    class="btn btn-warning">
+                                                                    <i class="fas fa-times"></i> Cancel
+                                                                </a>
+                                                            @endif
+                                                            @if (request("selected") !=null && $order->selected == 1)
+                                                                <a href='/order/action/edit/{{ $order->id }}'
+                                                                    class="btn btn-warning">
+                                                                    <i class="fas fa-file-excel"></i> Edit
+                                                                </a>
+                                                                <a href='/order/action/delivery/{{ $order->id }}'
+                                                                    class="btn btn-success">
+                                                                    <i class="fas fa-file-excel"></i> Delivery
+                                                                </a>
+                                                            @endif
+                                                            <a href="{{ route('order.export.excel', $order->id) }}" class="btn btn-info">
+                                                                <i class="fas fa-file-excel"></i> Export Excel
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
                                     </table>
                                 </div>
                                 <div class="float-right">
-                                    {{ $orders->withQueryString()->links() }}
+                                    {{ $orders->links() }}
                                 </div>
                             </div>
                         </div>

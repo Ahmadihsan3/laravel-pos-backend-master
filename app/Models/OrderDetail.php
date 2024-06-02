@@ -10,9 +10,9 @@ class OrderDetail extends Model
     use HasFactory;
     protected $guarded = ["id"];
 
-    public function purchase()
+    public function order()
     {
-        return $this->belongsTo(Purchase::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function product()
