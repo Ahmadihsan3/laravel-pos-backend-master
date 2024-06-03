@@ -10,8 +10,10 @@ use App\Models\Unit;
 use Carbon\Carbon;
 use App\Exports\PurchasesExport;
 use App\Models\PurchaseDetail;
+use Exception;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 
@@ -43,7 +45,7 @@ class PurchaseController extends Controller
         $products = json_decode($request->input('products'));
 
         $total_price = 0;
-        foreach($products as $product ) {
+        foreach ($products as $product) {
             $total_price += $product->total;
         }
 
@@ -61,7 +63,7 @@ class PurchaseController extends Controller
         $purchase->total_price = $total_price;
         $purchase->save();
 
-        foreach($products as $product ) {
+        foreach ($products as $product) {
             PurchaseDetail::create([
                 "purchase_id" => $purchase->id,
                 "product_id" => $product->product_id,
@@ -161,55 +163,61 @@ class PurchaseController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validate the incoming request data
-        $request->validate([
-            'payment' => 'required|in:Cash,Transfer',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'products' => 'required|array', // Ubah validasi untuk produk menjadi array
-            'products.*.product_id' => 'required|exists:products,id', // Validasi product_id untuk setiap item
-            'products.*.unit_id' => 'required|exists:units,id', // Validasi unit_id untuk setiap item
-            'products.*.qty' => 'required|integer|min:1', // Validasi qty untuk setiap item
-            'products.*.price' => 'required|numeric|min:0', // Validasi price untuk setiap item
-            'products.*.total' => 'required|numeric|min:0', // Validasi total untuk setiap item
-        ]);
-
-        // Find the purchase record
-        $purchase = Purchase::findOrFail($id);
-
-        // Update the purchase record
-        $purchase->payment = $request->input('payment');
-        $purchase->supplier_id = $request->input('supplier_id');
-        $purchase->save();
-
-        // Decode the products JSON string
-        $products = $request->input('products');
-
-        // Clear existing purchase details
-        PurchaseDetail::where('purchase_id', $purchase->id)->delete();
-
-        // Initialize the total price
-        $total_price = 0;
-
-        // Loop through each product and create new purchase detail records
-        foreach ($products as $product) {
-            $total_price += $product['total'];
-
-            PurchaseDetail::create([
-                'purchase_id' => $purchase->id,
-                'product_id' => $product['product_id'],
-                'unit_id' => $product['unit_id'],
-                'quantity' => $product['qty'],
-                'price' => $product['price'],
-                'total_price' => $product['total'],
+        try {
+            DB::beginTransaction();
+            // Validate the incoming request data
+            $request->validate([
+                // 'payment' => 'required|in:Cash,Transfer',
+                // 'supplier_id' => 'required|exists:suppliers,id',
+                // 'products' => 'required|array', // Ubah validasi untuk produk menjadi array
+                // 'products.*.product_id' => 'required|exists:products,id', // Validasi product_id untuk setiap item
+                // 'products.*.unit_id' => 'required|exists:units,id', // Validasi unit_id untuk setiap item
+                // 'products.*.qty' => 'required|integer|min:1', // Validasi qty untuk setiap item
+                // 'products.*.price' => 'required|numeric|min:0', // Validasi price untuk setiap item
+                // 'products.*.total' => 'required|numeric|min:0', // Validasi total untuk setiap item
             ]);
+
+            // // Find the purchase record
+            // $purchase = Purchase::findOrFail($id);
+            // // Update the purchase record
+            // $purchase->payment = $request->input('payment');
+            // $purchase->supplier_id = $request->input('supplier_id');
+            // $purchase->save();
+            // Decode the products JSON string
+            $products = json_decode($request->input('products'));
+
+            // Clear existing purchase details
+            $data = Purchase::where('id', $id)->first();
+            $purchase_id = $data->purchase_id;
+            $total_price = 0;
+
+
+            // // Loop through each product and create new purchase detail records
+            foreach ($products as $product) {
+                $total_price += $product->total;
+
+                $purchaseProduct = PurchaseDetail::where("purchase_id", $id)
+                    ->where("product_id", $product->product_id)
+                    ->first();
+
+                $purchaseProduct->quantity = $product->qty;
+                $purchaseProduct->price = $product->price;
+                $purchaseProduct->total_price = $product->total;
+                $purchaseProduct->save();
+
+            }
+
+            // // Update the total price of the purchase
+            $purchase = Purchase::find($id);
+            $purchase->total_price = $total_price;
+            $purchase->save();
+
+            DB::commit();
+            // // Redirect back to purchase index with success message
+            return redirect()->route('purchase.index')->with('success', 'Purchase updated successfully');
+        } catch (Exception $exception) {
+            // Log the exception
+            dd($exception->getMessage());
         }
-
-        // Update the total price of the purchase
-        $purchase->total_price = $total_price;
-        $purchase->save();
-
-        // Redirect back to purchase index with success message
-        return redirect()->route('purchase.index')->with('success', 'Purchase updated successfully');
     }
-
 }

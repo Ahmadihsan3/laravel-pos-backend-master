@@ -37,6 +37,30 @@ class DashboardController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
-        return view('pages.dashboard', compact('products', 'totalPurchases', 'totalOrders', 'purchases', 'startDate', 'endDate', 'orders'));
+        $stockChart = $products->map(function ($product) {
+            return [$product->name, $product->stock];
+        })->toArray();
+
+
+        $orderChart = $orders->map(function ($order) {
+            return [$order->name, $order->total];
+        })->toArray();
+
+        $purchaseChart = $purchases->map(function ($purchase) {
+            return [$purchase->name, $purchase->total];
+        })->toArray();
+
+        return view('pages.dashboard', compact(
+            'products',
+            'totalPurchases',
+            'totalOrders',
+            'purchases',
+            'startDate',
+            'endDate',
+            'orders',
+            'stockChart',
+            'orderChart',
+            'purchaseChart',
+        ));
     }
 }

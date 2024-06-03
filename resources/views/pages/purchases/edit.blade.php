@@ -42,16 +42,16 @@
                                         <thead>
                                             <tr>
                                                 <th>Product</th>
-                                                <th>Qty</th>
-                                                <th>Price</th>
-                                                <th class="align-right">Total</th>
+                                                <th style='width: 250px;'>Qty</th>
+                                                <th style='width: 250px;'>Price</th>
+                                                <th style='width: 250px;' class="align-right">Total</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($purchaseDetails as $detail)
                                                 <tr id="product-{{ $detail->product_id }}">
                                                     <td>{{ $detail->product->name }}</td>
-                                                    <td contenteditable="true" class="editable-qty">{{ $detail->quantity }} {{ $detail->unit->name }}</td>
+                                                    <td contenteditable="true" class="editable-qty">{{ $detail->quantity }}</td>
                                                     <td contenteditable="true" class="editable-price">{{ $detail->price }}</td>
                                                     <td>{{ $detail->total_price }}</td>
                                                 </tr>
@@ -75,7 +75,7 @@
     <script>
         var products = [];
 
-$(document).on("input", ".editable-qty, .editable-price", function() {
+$(document).on("input", ".editable-qty, .editable-price", function(e) {
     var row = $(this).closest("tr");
     var qty = parseFloat(row.find(".editable-qty").text());
     var price = parseFloat(row.find(".editable-price").text());
